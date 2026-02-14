@@ -1,0 +1,21 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.head {
+  width: auto;
+  height: 200px;
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(2, 141, 141);
+}
+
+.logo {
+  height: 100px;
+  width: 100px;
+  padding: 10px;
+}
