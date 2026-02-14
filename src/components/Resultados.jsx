@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { iconoEstadoCielo } from "../iconosEstadoCielo"; // Importamos función para que se añadan los iconos.
 
 function Resultados({municipio}) {
 
@@ -35,20 +36,28 @@ function Resultados({municipio}) {
     if (error) return <p>{error}</p>;
     if (!datos) return null;
 
-    // Datos reales de AEMET del primer día que aparece en el array (hoy)
-    const dia = datos.prediccion.dia[0];
+    // Datos reales de AEMET.
+    const dias = datos.prediccion.dia;
 
     return (
-        <>
+        <>  
+        <h2>Datos meteorológicos</h2>
             <div className="resultados">
-                <h2>Datos meteorológicos</h2>
-                <div className="datos">
-                    <p><strong>Fecha del pronóstico: </strong>{dia.fecha}</p>
-                    <p><strong>Estado del cielo: </strong>{dia.estadoCielo[0].descripcion}</p>
-                    <p><strong>Temperatura máxima: </strong>{dia.temperatura.maxima}ºC</p>
-                    <p><strong>Temperatura mínima: </strong>{dia.temperatura.minima}ºC</p>
-                    <p><strong>Probabilidad de precipitación: </strong>{dia.probPrecipitacion[0].value}%</p>
-                    <p><strong>Viento: </strong>{dia.viento[0].velocidad}km/h</p>
+            {/* Hacemos un map para iterar más días, no solo el primero */}
+                <div className="tarjetas-dia">
+                    {dias.map((dia, index) => (
+                        <div key={index} className="dia">
+                            <p><strong>Fecha del pronóstico: </strong><br/>{dia.fecha}</p>
+                            <p className="iconos">
+                                {iconoEstadoCielo(dia.estadoCielo[0].descripcion)}
+                            </p>
+                            <p><strong>Estado del cielo: </strong>{dia.estadoCielo[0].descripcion}</p>
+                            <p><strong>Temperatura máxima: </strong>{dia.temperatura.maxima}ºC</p>
+                            <p><strong>Temperatura mínima: </strong>{dia.temperatura.minima}ºC</p>
+                            <p><strong>Probabilidad precipitación: </strong>{dia.probPrecipitacion[0].value}%</p>
+                            <p><strong>Viento: </strong>{dia.viento[0].velocidad}km/h</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </>

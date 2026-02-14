@@ -15,10 +15,44 @@
 }
 
 body {
+  width: auto;
+  display:flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   font-family: Arial;
-  background-color: rgb(225, 255, 0);
+  background-color: rgb(234, 255, 75);
+}
+
+.resultados {
+  text-align: center;
+  padding: 20px;
+  margin-top: 0;
+  margin: 20px;
+}
+
+.tarjetas-dia {
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.dia {
+  flex: 1 1 240px; 
+  max-width: 260px; 
+  background: #ff6a6a; 
+  height: 370px;
+  border-radius: 12px; 
+  padding: 15px; 
+  box-shadow: #f33232 0px 4px 8px;
+}
+
+.iconos {
+  font-size: 48px; 
+  margin: 0;
 }
 
 footer {
