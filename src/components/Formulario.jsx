@@ -48,15 +48,11 @@ function Formulario({setMunicipio}) {
             >
                 <option value="">Selecciona un municipio</option>
                 {municipiosFiltrados.map((m) => (
-                    <option key={m.id} value={m.nombre}>
+                    <option key={m.id} value={m.id}>
                         {m.nombre}
                     </option>
                 ))}
             </select>
-
-            <br/>
-
-            <button type="submit">Consultar tiempo</button>
         </form>
     )
 }
