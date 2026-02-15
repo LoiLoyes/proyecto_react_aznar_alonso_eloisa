@@ -1,7 +1,7 @@
 export function iconoEstadoCielo(descripcion) {
     const texto = descripcion.toLowerCase(); // Pasamos a minúsculas.
 
-    // Si el texto extraído incluye una determinada palabra retorna el icono que hemos elegido.
+    // Si el texto extraído de la descripción incluye una determinada palabra retorna el icono que hemos elegido.
     if (texto.includes("despejado")) return "☀️";
     if (texto.includes("poco nuboso")) return "🌤️";
     if (texto.includes("lluvia") || texto.includes("chubascos")) return "🌧️";
