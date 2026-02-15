@@ -1,3 +1,4 @@
+// Componente sencillo para la cabecera de la aplicación que muestra el logo y el título.
 function Cabecera({logo, titulo}) {
     return (
         <>
