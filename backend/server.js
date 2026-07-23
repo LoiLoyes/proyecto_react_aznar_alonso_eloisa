@@ -2,10 +2,23 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 
 // Crear aplicación Express
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configurar cliente Supabase (si las variables existen)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+let supabase = null;
+
+if (supabaseUrl && supabaseKey && !supabaseUrl.includes('tu-proyecto')) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+  console.log('⚡ Supabase cliente listo para guardar historial');
+} else {
+  console.warn('⚠️ Supabase no está configurado en backend/.env');
+}
 
 // Middlewares
 app.use(cors()); // Permitir peticiones desde cualquier origen
@@ -16,9 +29,8 @@ app.get('/', (req, res) => {
   res.json({
     mensaje: 'Bienvenido a la API Backend',
     endpoints: {
-      '/api/ejemplo': 'Obtiene datos de ejemplo de una API externa',
-      '/api/usuarios': 'Obtiene lista de usuarios de ejemplo',
-      '/api/usuario/:id': 'Obtiene un usuario específico por ID'
+      '/api/tiempo/:idMunicipio': 'Obtiene predicción de AEMET y guarda en Supabase',
+      '/api/historial': 'Obtiene las últimas búsquedas guardadas en Supabase'
     }
   });
 });
@@ -46,6 +58,25 @@ app.get('/api/tiempo/:idMunicipio', async (req, res) => {
     if (data.datos) {
       const datosResponse = await fetch(data.datos);
       const meteorologia = await datosResponse.json(); // Convertimos esos datos a json
+      const primerDia = meteorologia[0]?.prediccion?.dia?.[0];
+
+      // Si Supabase está activo, guardamos la consulta en la base de datos de manera transparente
+      if (supabase && meteorologia[0]) {
+        try {
+          await supabase.from('historial_meteorologico').insert([
+            {
+              municipio: meteorologia[0].nombre || `Municipio ${idMunicipio}`,
+              provincia: meteorologia[0].provincia || '',
+              temp_max: primerDia?.temperatura?.maxima ? parseInt(primerDia.temperatura.maxima) : null,
+              temp_min: primerDia?.temperatura?.minima ? parseInt(primerDia.temperatura.minima) : null,
+              estado_cielo: primerDia?.estadoCielo?.[0]?.descripcion || primerDia?.estadoCielo?.[0]?.value || 'Desconocido'
+            }
+          ]);
+          console.log(`✅ Registro guardado en Supabase para: ${meteorologia[0].nombre}`);
+        } catch (dbErr) {
+          console.error('⚠️ No se pudo guardar en Supabase:', dbErr.message);
+        }
+      }
 
       res.json({
         success: true,
@@ -67,6 +98,38 @@ app.get('/api/tiempo/:idMunicipio', async (req, res) => {
   }
 });
 
+// Ruta para obtener el historial guardado en Supabase
+app.get('/api/historial', async (req, res) => {
+  if (!supabase) {
+    return res.json({
+      success: false,
+      error: 'Supabase aún no está configurado en backend/.env',
+      data: []
+    });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('historial_meteorologico')
+      .select('*')
+      .order('fecha_consulta', { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      data: data || []
+    });
+  } catch (error) {
+    console.error('Error al consultar historial Supabase:', error.message);
+    res.status(500).json({
+      success: false,
+      error: `Error Supabase: ${error.message}`
+    });
+  }
+});
+
 // Ruta para manejar endpoints no encontrados
 app.use((req, res) => {
   res.status(404).json({
@@ -79,4 +142,4 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📝 Documentación disponible en http://localhost:${PORT}`);
-});
+});
